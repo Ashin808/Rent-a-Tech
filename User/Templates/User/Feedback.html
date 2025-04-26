@@ -1,0 +1,208 @@
+{% extends 'User/Header.html' %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback</title>
+    <style>
+        
+
+        /* Feedback Form Styling */
+        .feedback-form {
+            background-color: #ffffff; /* White panel */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Soft shadow */
+            margin-bottom: 30px;
+            border-left: 5px solid #18201c; /* Teal accent */
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #2c3e50; /* Darker slate for labels */
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d5dbde; /* Light gray border */
+            border-radius: 5px;
+            background-color: #f8fafc; /* Very light gray input */
+            color: #34495e;
+            font-size: 14px;
+            min-height: 80px;
+            resize: vertical;
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+        }
+
+        .form-group textarea:focus {
+            border-color: #1abc9c; /* Teal on focus */
+            background-color: #ffffff;
+            outline: none;
+        }
+
+        .submit-btn {
+            background-color: #18201c; /* Teal button */
+            color: #ffffff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background-color: #18201c;; /* Darker teal on hover */
+        }
+
+        /* Feedback List Styling */
+        .feedback-list {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .feedback-item {
+            border-bottom: 1px solid #e0e5e8; /* Light gray divider */
+            transition: background-color 0.3s ease;
+        }
+
+        .feedback-item:last-child {
+            border-bottom: none;
+        }
+
+        .feedback-summary {
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            cursor: pointer;
+            background-color: #ffffff;
+        }
+
+        .feedback-summary:hover {
+            background-color: #f5f7f9; /* Light hover effect */
+        }
+
+        .feedback-details {
+            max-height: 0;
+            overflow: hidden;
+            background-color: #f8fafc; /* Very light gray details panel */
+            padding: 0 15px;
+            transition: max-height 0.3s ease-out, padding 0.1s ease-out;
+        }
+
+        .feedback-item input[type="checkbox"] {
+            display: none;
+        }
+
+        .feedback-item input[type="checkbox"]:checked ~ .feedback-details {
+            max-height: 150px; /* Adjusted for feedback content */
+            padding: 15px;
+        }
+
+        .detail-row {
+            margin: 8px 0;
+            font-size: 13px;
+        }
+
+        .detail-row strong {
+            color: #2c3e50; /* Darker slate for emphasis */
+        }
+
+        .action-link {
+            color: #e74c3c; /* Red accent for delete */
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.3s ease;
+        }
+
+        .action-link:hover {
+            color: #c0392b; /* Darker red on hover */
+            text-decoration: underline;
+        }
+
+        .feedback-number {
+            background-color: #18201c; /* Teal accent */
+            color: #ffffff;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-right: 8px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .feedback-form,
+            .feedback-list {
+                padding: 15px;
+            }
+
+            .feedback-summary {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Feedback Form -->
+        <div class="feedback-form">
+            <form action="" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="txt_feedback">Feedback</label>
+                    <textarea name="txt_feedback" id="txt_feedback" required></textarea>
+                </div>
+                <button type="submit" name="btn_submit" class="submit-btn">Submit</button>
+            </form>
+        </div>
+
+        <!-- Feedback List -->
+        <div class="feedback-list">
+            {% for i in Fdata %}
+            <div class="feedback-item">
+                <input type="checkbox" id="feedback-{{ forloop.counter }}">
+                <label for="feedback-{{ forloop.counter }}" class="feedback-summary">
+                    <span><span class="feedback-number">#{{ forloop.counter }}</span> {{ i.feedback_title|truncatechars:30 }}</span>
+                    <span>Details</span>
+                </label>
+                <div class="feedback-details">
+                    <div class="detail-row">
+                        <strong>Feedback:</strong> {{ i.feedback_title }}
+                    </div>
+                    <div class="detail-row">
+                        <a href="{% url 'User:DeleteFeedback' i.id %}" class="action-link">Delete</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="feedback-item" style="padding: 15px; text-align: center;">
+                No feedback available.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
+{% endblock content %}

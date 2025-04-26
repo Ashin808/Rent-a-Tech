@@ -1,0 +1,221 @@
+{% extends 'User/Header.html' %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complaints</title>
+    <style>
+        
+
+
+        /* Complaint Form Styling */
+        .complaint-form {
+            background-color: #ffffff; /* White panel */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Soft shadow */
+            margin-bottom: 30px;
+            border-left: 5px solid #18201c; /* Teal accent */
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #2c3e50; /* Darker slate for labels */
+        }
+
+        .form-group input[type="text"],
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d5dbde; /* Light gray border */
+            border-radius: 5px;
+            background-color: #f8fafc; /* Very light gray input */
+            color: #34495e;
+            font-size: 14px;
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group textarea:focus {
+            border-color: #1abc9c; /* Teal on focus */
+            background-color: #ffffff;
+            outline: none;
+        }
+
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            background-color: #18201c; /* Teal button */
+            color: #ffffff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background-color: #161d1b00; /* Darker teal on hover */
+        }
+
+        /* Complaints List Styling */
+        .complaints-list {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .complaint-item {
+            border-bottom: 1px solid #e0e5e8; /* Light gray divider */
+            transition: background-color 0.3s ease;
+        }
+
+        .complaint-item:last-child {
+            border-bottom: none;
+        }
+
+        .complaint-summary {
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            cursor: pointer;
+            background-color: #ffffff;
+        }
+
+        .complaint-summary:hover {
+            background-color: #f5f7f9; /* Light hover effect */
+        }
+
+        .complaint-details {
+            max-height: 0;
+            overflow: hidden;
+            background-color: #f8fafc; /* Very light gray details panel */
+            padding: 0 15px;
+            transition: max-height 0.3s ease-out, padding 0.1s ease-out;
+        }
+
+        .complaint-item input[type="checkbox"] {
+            display: none;
+        }
+
+        .complaint-item input[type="checkbox"]:checked ~ .complaint-details {
+            max-height: 200px; /* Increased for more content */
+            padding: 15px;
+        }
+
+        .detail-row {
+            margin: 8px 0;
+            font-size: 13px;
+        }
+
+        .detail-row strong {
+            color: #2c3e50; /* Darker slate for emphasis */
+        }
+
+        .action-link {
+            color: #e74c3c; /* Red accent for delete */
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.3s ease;
+        }
+
+        .action-link:hover {
+            color: #c0392b; /* Darker red on hover */
+            text-decoration: underline;
+        }
+
+        .complaint-number {
+            background-color: #1abc9c; /* Teal accent */
+            color: #ffffff;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-right: 8px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .complaint-form,
+            .complaints-list {
+                padding: 15px;
+            }
+
+            .complaint-summary {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Complaint Form -->
+        <div class="complaint-form">
+            <form action="" method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="txt_title">Title</label>
+                    <input type="text" name="txt_title" id="txt_title" required>
+                </div>
+                <div class="form-group">
+                    <label for="txt_content">Content</label>
+                    <textarea name="txt_content" id="txt_content" required></textarea>
+                </div>
+                <button type="submit" name="btn_submit" class="submit-btn">Submit</button>
+            </form>
+        </div>
+
+        <!-- Complaints List -->
+        <div class="complaints-list">
+            {% for i in Cdata %}
+            <div class="complaint-item">
+                <input type="checkbox" id="complaint-{{ forloop.counter }}">
+                <label for="complaint-{{ forloop.counter }}" class="complaint-summary">
+                    <span><span class="complaint-number">#{{ forloop.counter }}</span> {{ i.complaint_title }}</span>
+                    <span>{{ i.complaint_reply|default:"No Reply" }}</span>
+                </label>
+                <div class="complaint-details">
+                    <div class="detail-row">
+                        <strong>Content:</strong> {{ i.complaint_message }}
+                    </div>
+                    <div class="detail-row">
+                        <strong>Reply:</strong> {{ i.complaint_reply|default:"Awaiting response" }}
+                    </div>
+                    <div class="detail-row">
+                        <a href="{% url 'User:DeleteComplaint' i.id %}" class="action-link">Delete</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="complaint-item" style="padding: 15px; text-align: center;">
+                No complaints available.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
+{% endblock content %}

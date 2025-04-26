@@ -1,0 +1,75 @@
+
+{% extends 'Admin/Header.html' %}
+{% load static %}
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="container mt-5">
+        <!-- Form to Add Brand -->
+        <h2 class="mb-4">Manage Brands</h2>
+        <form method="post" action="{% url 'Admin:AddBrand' %}" class="mb-5">
+            {% csrf_token %}
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Add New Brand</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="txt_brand" class="form-label">Brand Name</label>
+                            <input type="text" name="txt_brand" id="txt_brand" class="form-control" required>
+                            {% if form_errors %}
+                            <div class="text-danger mt-2">{{ form_errors }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-12">
+                            <button type="submit" name="btn_submit" value="Submit" class="btn btn-primary">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    
+        <!-- Table to List Brands -->
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Sl.no</th>
+                        <th>Brand</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in Brand %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ i.brand_name }}</td>
+                        <td>
+                            <a href="{% url 'Admin:EditBrand' i.id %}" class="btn btn-sm btn-warning me-2" title="Edit">
+                                <i class="fa fa-pencil"></i>
+                            </a>
+                            <a href="{% url 'Admin:DeleteBrand' i.id %}" class="btn btn-sm btn-danger" title="Delete" 
+                               onclick="return confirm('Are you sure you want to delete {{ i.brand_name }}?');">
+                                <i class="fa fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center">No brands found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
+
+{% endblock content %}

@@ -1,0 +1,148 @@
+{% extends 'User/Header.html' %}
+{% load static %}
+{% block content %}
+<div class="filter-form">
+    <form method="post" id="bookingForm">
+        {% csrf_token %}
+        <table>
+            <tr>
+                <td><label for="txt_fromdate">From Date:</label></td>
+                <td>
+                    <input type="date" name="txt_fromdate" id="txt_fromdate" required>
+                    <div class="error" id="fromDateError"></div>
+                </td>
+            </tr>
+            <tr>
+                <td><label for="txt_todate">To Date:</label></td>
+                <td>
+                    <input type="date" name="txt_todate" id="txt_todate" required>
+                    <div class="error" id="toDateError"></div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" align="center">
+                    <input type="submit" value="Submit">
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<style>
+    .filter-form {
+        max-width: 400px;
+        margin: 50px auto;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #f9f9f9;
+    }
+    table {
+        width: 100%;
+    }
+    td {
+        padding: 10px;
+    }
+    input[type="date"] {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    input[type="submit"] {
+        background-color: #3498db;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        width: 100%;
+    }
+    input[type="submit"]:hover {
+        background-color: #2980b9;
+    }
+    label {
+        font-weight: bold;
+    }
+    .error {
+        color: #e74c3c;
+        font-size: 12px;
+        margin-top: 5px;
+        min-height: 18px; /* Reserve space for error messages */
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0]; // YYYY-MM-DD
+
+        // Max date for from_date (today + 30 days)
+        const maxFromDate = new Date(today);
+        maxFromDate.setDate(today.getDate() + 30);
+        const maxFromDateStr = maxFromDate.toISOString().split('T')[0];
+
+        // Max date for to_date (today + 90 days)
+        const maxToDate = new Date(today);
+        maxToDate.setDate(today.getDate() + 90);
+        const maxToDateStr = maxToDate.toISOString().split('T')[0];
+
+        // From Date input
+        const fromDateInput = document.getElementById('txt_fromdate');
+        fromDateInput.value = todayStr; // Default to today
+        fromDateInput.min = todayStr; // Min is today
+        fromDateInput.max = maxFromDateStr; // Max is today + 30 days
+
+        // To Date input
+        const toDateInput = document.getElementById('txt_todate');
+        toDateInput.min = todayStr; // Min is today
+        toDateInput.max = maxToDateStr; // Max is today + 90 days
+
+        // Error message elements
+        const fromDateError = document.getElementById('fromDateError');
+        const toDateError = document.getElementById('toDateError');
+
+        // Form submission validation
+        document.getElementById('bookingForm').addEventListener('submit', function (event) {
+            let isValid = true;
+            fromDateError.textContent = '';
+            toDateError.textContent = '';
+
+            // Get date values
+            const fromDate = new Date(fromDateInput.value);
+            const toDate = new Date(toDateInput.value);
+
+            // Validate From Date
+            if (fromDate < today) {
+                fromDateError.textContent = 'From date cannot be before today.';
+                isValid = false;
+            }
+            if (fromDate > maxFromDate) {
+                fromDateError.textContent = 'From date cannot be more than 30 days from today.';
+                isValid = false;
+            }
+
+            // Validate To Date
+            if (toDate < today) {
+                toDateError.textContent = 'To date cannot be before today.';
+                isValid = false;
+            }
+            if (toDate > maxToDate) {
+                toDateError.textContent = 'To date cannot be more than 90 days from today.';
+                isValid = false;
+            }
+
+            // Validate From Date vs To Date
+            if (fromDate > toDate) {
+                fromDateError.textContent = 'From date cannot be after to date.';
+                isValid = false;
+            }
+
+            // Prevent submission if invalid
+            if (!isValid) {
+                event.preventDefault();
+            }
+        });
+    });
+</script>
+{% endblock content %}

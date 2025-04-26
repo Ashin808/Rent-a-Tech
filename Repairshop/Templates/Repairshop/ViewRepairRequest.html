@@ -1,0 +1,181 @@
+{% extends 'Repairshop/Header.html' %}
+{% load static mathfilters %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Repair Requests</title>
+    <style>
+        table { width: 90%; margin: 20px auto; border-collapse: collapse; }
+        th, td { padding: 10px; text-align: center; border: 1px solid #ddd; }
+        th { background-color: #f2f2f2; }
+        .form-container { display: flex; flex-direction: column; gap: 5px; }
+        .action-btn { background-color: #2ecc71; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; }
+        .action-btn:hover { background-color: #27ae60; }
+        .revert-btn { background-color: #3498db; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; text-decoration: none; display: inline-block; }
+        .revert-btn:hover { background-color: #2980b9; }
+        .status-form, .amount-form, .date-form { margin: 0; }
+        select, input[type="number"], input[type="date"] { padding: 5px; border-radius: 4px; }
+        input[type="number"] { width: 100px; }
+        input[type="date"] { width: 150px; }
+        .action-link { color: #3498db; text-decoration: none; margin: 2px 0; display: block; }
+        .action-link:hover { text-decoration: underline; }
+        .status.requested { color: #e67e22; }
+        .status.accepted { color: #f1c40f; }
+        .status.cancelled { color: #e74c3c; }
+        .status.picked-up { color: #9b59b6; }
+        .status.in-progress { color: #3498db; }
+        .status.completed { color: #2ecc71; }
+        .status.payment-completed { color: #27ae60; }
+        .status.delivered { color: #1abc9c; }
+        .status.returned { color: #7f8c8d; }
+        .status.cod-requested { color: #e67e22; }
+    </style>
+</head>
+<body>
+    <table border="2" align="center">
+        <tr>
+            <th>Sl.no</th>
+            <th>User Details</th>
+            <th>Device Details</th>
+            <th>Problem Details</th>
+            <th>Address</th>
+            <th>Requested Date</th>
+            <th>Expected Pickup Date</th>
+            <th>Reply Notes</th>
+            <th>Status</th>
+            <th>Amount</th>
+            <th>Actions</th>
+        </tr>
+        
+        {% for i in repair_requests %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>
+                Name: {{ i.user.user_name }}<br>
+                Email: {{ i.user.user_email }}<br>
+                Contact: {{ i.user.user_contact }}
+            </td>
+            <td>{{ i.device_details }}</td>
+            <td>{{ i.problem_details }}</td>
+            <td style="width: 200px;">{{ i.pickup_address }}</td>
+            <td>{{ i.request_date }}</td>
+            <td>{{ i.date_scheduled|default:"Not Set" }}</td>
+            <td>{{ i.repair_notes|default:"N/A" }}</td>
+            <td class="status {% if i.repair_status == 0 %}requested{% elif i.repair_status == 1 %}accepted{% elif i.repair_status == 2 %}cancelled{% elif i.repair_status == 3 %}picked-up{% elif i.repair_status == 4 %}in-progress{% elif i.repair_status == 5 %}completed{% elif i.repair_status == 6 %}payment-completed{% elif i.repair_status == 7 %}delivered{% elif i.repair_status == 8 %}returned{% elif i.repair_status == 9 %}cod-requested{% endif %}">
+                {% if i.repair_status == 0 %}
+                    Requested
+                {% elif i.repair_status == 1 %}
+                    Accepted
+                {% elif i.repair_status == 2 %}
+                    Cancelled
+                {% elif i.repair_status == 3 %}
+                    Picked Up
+                {% elif i.repair_status == 4 %}
+                    In Progress
+                {% elif i.repair_status == 5 %}
+                    Completed
+                {% elif i.repair_status == 6 %}
+                    Payment Completed
+                {% elif i.repair_status == 7 %}
+                    Delivered
+                {% elif i.repair_status == 8 %}
+                    Product Returned
+                {% elif i.repair_status == 9 %}
+                    COD Requested
+                {% else %}
+                    Unknown ({{ i.repair_status }})
+                {% endif %}
+            </td>
+            <td>
+                {% if i.repair_status == 5 %}
+                <form method="post" action="{% url 'Repairshop:update_repair_status' i.id 5 %}" class="amount-form">
+                    {% csrf_token %}
+                    <input type="number" name="repair_amount" placeholder="Set Amount" value="{{ i.repair_amount|default:'' }}" step="0.01" min="0">
+                    <button type="submit" class="action-btn">Set/Update</button>
+                </form>
+                <a href="{% url 'Repairshop:invoice' i.id %}" class="action-link">View Invoice</a>
+                {% else %}
+                ₹{{ i.repair_amount|default:"Not Set" }}
+                {% if i.repair_status >= 5 %}
+                <br><a href="{% url 'Repairshop:invoice' i.id %}" class="action-link">View Invoice</a>
+                {% endif %}
+                {% if i.repair_status >= 6 %}
+                <br><span style="color: #27ae60;">Payment Completed</span>
+                {% endif %}
+                {% endif %}
+            </td>
+            <td>
+                {% if i.repair_status == 0 %}
+                <form method="post" action="{% url 'Repairshop:update_repair_status' i.id 1 %}" class="date-form">
+                    {% csrf_token %}
+                    <input type="date" name="date_scheduled" required>
+                    <button type="submit" class="action-btn">Accept</button>
+                </form>
+                <a href="{% url 'Repairshop:edit_request' i.id %}" class="action-link">Edit Details</a>
+                <a href="mailto:{{ i.user.user_email }}" class="action-link">Contact User</a>
+                {% elif i.repair_status == 1 %}
+                <a href="{% url 'Repairshop:update_repair_status' i.id 3 %}" class="action-link">Mark Picked Up</a>
+                <a href="{% url 'Repairshop:edit_request' i.id %}" class="action-link">Edit Details</a>
+                <a href="mailto:{{ i.user.user_email }}" class="action-link">Contact User</a>
+                {% elif i.repair_status == 2 %}
+                <a href="{% url 'Repairshop:update_repair_status' i.id 0 %}" class="revert-btn">Revert Cancellation</a>
+                {% elif i.repair_status == 3 %}
+                <a href="{% url 'Repairshop:update_repair_status' i.id 4 %}" class="action-link">Start Repair</a>
+                <a href="{% url 'Repairshop:edit_request' i.id %}" class="action-link">Edit Details</a>
+                <a href="mailto:{{ i.user.user_email }}" class="action-link">Contact User</a>
+                {% elif i.repair_status == 4 %}
+                <a href="{% url 'Repairshop:update_repair_status' i.id 5 %}" class="action-link">Complete Repair</a>
+                <a href="{% url 'Repairshop:edit_request' i.id %}" class="action-link">Edit Details</a>
+                <a href="mailto:{{ i.user.user_email }}" class="action-link">Contact User</a>
+                {% elif i.repair_status == 6 %}
+                <a href="{% url 'Repairshop:update_repair_status' i.id 7 %}" class="action-link">Mark Delivered</a>
+                {% elif i.repair_status == 7 %}
+                <a href="{% url 'Repairshop:update_repair_status' i.id 6 %}" class="action-link">Confirm COD Payment</a>
+                <a href="{% url 'Repairshop:update_repair_status' i.id 8 %}" class="action-link">Mark Returned</a>
+                {% elif i.repair_status == 9 %}
+                <a href="{% url 'Repairshop:update_repair_status' i.id 7 %}" class="action-link">Mark Delivered (COD)</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>    
+            <td colspan="11">No repair requests found.</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <script>
+        // JavaScript function to set date range for all date inputs in date-form
+        document.addEventListener('DOMContentLoaded', function() {
+            // Calculate today's date and the date 30 days from today
+            const today = new Date();
+            const maxDate = new Date();
+            maxDate.setDate(today.getDate() + 30);
+
+            // Format dates as YYYY-MM-DD
+            const formatDate = (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
+            const minDateStr = formatDate(today);  // e.g., "2025-04-23"
+            const maxDateStr = formatDate(maxDate);  // e.g., "2025-05-23"
+
+            // Select all date inputs in date-form forms
+            const dateInputs = document.querySelectorAll('.date-form input[type="date"]');
+
+            // Set min and max attributes for each date input
+            dateInputs.forEach(input => {
+                input.setAttribute('min', minDateStr);
+                input.setAttribute('max', maxDateStr);
+            });
+        });
+    </script>
+</body>
+</html>
+{% endblock content %}

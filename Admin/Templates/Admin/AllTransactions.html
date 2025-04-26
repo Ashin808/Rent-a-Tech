@@ -1,0 +1,162 @@
+<!-- Admin/all_transactions.html -->
+{% extends 'Admin/Header.html' %}
+{% load static mathfilters %}
+
+{% block content %}
+<div class="container-fluid pt-4 px-4">
+    <h1 class="mb-4 text-white bg-primary p-3 rounded">All Transactions</h1>
+
+    <!-- Total Profit Card -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm" style="background: linear-gradient(135deg, #007bff, #00d4ff); color: white;">
+                <div class="card-body">
+                    <h5 class="card-title">Total Admin Profit</h5>
+                    <p class="card-text display-4">₹{{ total_profit|floatformat:2 }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row g-4 mb-4">
+        <!-- Admin Profit Bar Chart -->
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Admin Profit Over Time</h5>
+                </div>
+                <div class="card-body bg-light">
+                    <canvas id="profitChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Amount Line Chart -->
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Total Transaction Amounts</h5>
+                </div>
+                <div class="card-body bg-light">
+                    <canvas id="amountChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transactions Table -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Transaction Details</h5>
+        </div>
+        <div class="card-body bg-light">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>User</th>
+                            <th>Total Amount</th>
+                            <th>Admin Commission</th>
+                            <th>Booking Date</th>
+                            <th>Booking Period</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for transaction in transactions %}
+                        <tr>
+                            <td>{{ transaction.booking.user.user_name }}</td>
+                            <td>₹{{ transaction.booking.booking_amount }}</td>
+                            <td>₹{{ transaction.booking.booking_amount|mul:0.10|floatformat:2 }}</td>
+                            <td>{{ transaction.booking.booking_date|date:"d M Y" }}</td>
+                            <td>{{ transaction.booking.booking_fordate|date:"d M Y" }}  -  {{ transaction.booking.booking_todate|date:"d M Y" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">No transactions found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- JSON Data for Charts -->
+    {{ chart_labels|json_script:"labels" }}
+    {{ chart_data|json_script:"profit_data" }}
+    {{ chart_amounts|json_script:"amount_data" }}
+
+    <!-- Chart.js Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const labels = JSON.parse(document.getElementById('labels').textContent);
+        const profitData = JSON.parse(document.getElementById('profit_data').textContent);
+        const amountData = JSON.parse(document.getElementById('amount_data').textContent);
+
+        const profitCtx = document.getElementById('profitChart').getContext('2d');
+        new Chart(profitCtx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Admin Profit (₹)',
+                    data: profitData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 2,
+                    borderRadius: 5,
+                    hoverBackgroundColor: 'rgba(54, 162, 235, 1)'
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: { display: true, position: 'top' },
+                    tooltip: { callbacks: { label: (context) => `₹${context.parsed.y.toFixed(2)}` } }
+                },
+                scales: {
+                    y: { 
+                        beginAtZero: true, 
+                        title: { display: true, text: 'Profit (₹)' },
+                        ticks: { callback: (value) => `₹${value}` }
+                    },
+                    x: { title: { display: true, text: 'Date' } }
+                }
+            }
+        });
+
+        const amountCtx = document.getElementById('amountChart').getContext('2d');
+        new Chart(amountCtx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Total Amount (₹)',
+                    data: amountData,
+                    fill: true,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    pointBackgroundColor: 'rgba(75, 192, 192, 1)',
+                    tension: 0.3
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: { display: true, position: 'top' },
+                    tooltip: { callbacks: { label: (context) => `₹${context.parsed.y.toFixed(2)}` } }
+                },
+                scales: {
+                    y: { 
+                        beginAtZero: true, 
+                        title: { display: true, text: 'Amount (₹)' },
+                        ticks: { callback: (value) => `₹${value}` }
+                    },
+                    x: { title: { display: true, text: 'Date' } }
+                }
+            }
+        });
+    </script>
+</div>
+{% endblock content %}

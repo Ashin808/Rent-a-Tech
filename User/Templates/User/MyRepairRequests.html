@@ -1,0 +1,141 @@
+{% extends 'User/Header.html' %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Repair Requests</title>
+    <style>
+        table { 
+            width: 90%; 
+            margin: 20px auto; 
+            border-collapse: collapse; 
+        }
+        th, td { 
+            padding: 10px; 
+            text-align: center; 
+            border: 1px solid #ddd; 
+        }
+        th { 
+            background-color: #f2f2f2; 
+        }
+        .cancel-btn {
+            background-color: #e74c3c; 
+            color: white; 
+            border: none; 
+            padding: 5px 10px; 
+            border-radius: 4px; 
+            text-decoration: none; 
+            display: inline-block;
+        }
+        .cancel-btn:hover {
+            background-color: #c0392b;
+        }
+        .payment-btn { 
+            background-color: #3498db; 
+            color: white; 
+            padding: 5px 10px; 
+            border-radius: 4px; 
+            text-decoration: none; 
+            display: inline-block; 
+            margin: 2px 0; 
+        }
+        .payment-btn:hover { background-color: #2980b9; }
+        .status.cod-requested { color: #e67e22; }
+    </style>
+</head>
+<body>
+    <table border="2" align="center">
+        <tr>
+            <th>Sl.no</th>
+            <th>User Details</th>
+            <th>Device Details</th>
+            <th>Problem Details</th>
+            <th>Address</th>
+            <th>Requested Date</th>
+            <th>Expected Pickup Date</th>
+            <th>Reply Notes</th>
+            <th>Status</th>
+            <th>Amount</th>
+            <th>Actions</th>
+        </tr>
+        
+        {% for i in repair %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>
+                Name: {{ i.user.user_name }}<br>
+                Email: {{ i.user.user_email }}<br>
+                Contact: {{ i.user.user_contact }}
+            </td>
+            <td>{{ i.device_details }}</td>
+            <td>{{ i.problem_details }}</td>
+            <td style="width: 200px;">{{ i.pickup_address }}</td>
+            <td>{{ i.request_date }}</td>
+            <td>{{ i.date_scheduled|default:"Not Set" }}</td>
+            <td>{{ i.repair_notes|default:"N/A" }}</td>
+            <td class="status {% if i.repair_status == 0 %}requested{% elif i.repair_status == 1 %}accepted{% elif i.repair_status == 2 %}cancelled{% elif i.repair_status == 3 %}picked-up{% elif i.repair_status == 4 %}in-progress{% elif i.repair_status == 5 %}completed{% elif i.repair_status == 6 %}payment-completed{% elif i.repair_status == 7 %}delivered{% elif i.repair_status == 8 %}returned{% elif i.repair_status == 9 %}cod-requested{% endif %}">
+                {% if i.repair_status == 0 %}
+                    Requested
+                {% elif i.repair_status == 1 %}
+                    Accepted
+                {% elif i.repair_status == 2 %}
+                    Cancelled
+                {% elif i.repair_status == 3 %}
+                    Picked Up
+                {% elif i.repair_status == 4 %}
+                    In Progress
+                {% elif i.repair_status == 5 %}
+                    Completed
+                {% elif i.repair_status == 6 %}
+                    Payment Completed
+                {% elif i.repair_status == 7 %}
+                    Delivered
+                {% elif i.repair_status == 8 %}
+                    Product Returned
+                {% elif i.repair_status == 9 %}
+                    COD Requested
+                {% else %}
+                    Unknown ({{ i.repair_status }})
+                {% endif %}
+            </td>
+            <td>
+                {% if i.repair_amount %}
+                ₹{{ i.repair_amount }}
+                {% if i.repair_status == 5 %}
+                <br><a href="{% url 'User:RepairInvoice' i.id %}" class="payment-btn">View Invoice</a>
+                <br><a href="{% url 'User:RepairPayment' i.id %}" class="payment-btn">Pay Now</a>
+                {% elif i.repair_status == 6 %}
+                <br><span style="color: #27ae60;">Payment Completed</span>
+                <br><a href="{% url 'User:RepairInvoice' i.id %}" class="payment-btn">View Invoice</a>
+                {% elif i.repair_status == 7 %}
+                <br><span style="color: #e67e22;">Delivered, Awaiting COD Payment</span>
+                <br><a href="{% url 'User:RepairInvoice' i.id %}" class="payment-btn">View Invoice</a>
+                {% elif i.repair_status == 8 %}
+                <br><a href="{% url 'User:RepairInvoice' i.id %}" class="payment-btn">View Invoice</a>
+
+                {% elif i.repair_status == 9 %}
+                <br><span style="color: #e67e22;">COD Awaiting Delivery</span>
+                <br><a href="{% url 'User:RepairInvoice' i.id %}" class="payment-btn">View Invoice</a>
+                {% endif %}
+                {% else %}
+                Not Set
+                {% endif %}
+            </td>
+            <td>
+                {% if i.repair_status == 0 or i.repair_status == 1 %}
+                <a href="{% url 'User:cancel_repair_request' i.id %}" class="cancel-btn">Cancel</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="11">No repair requests found.</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
+{% endblock content %}

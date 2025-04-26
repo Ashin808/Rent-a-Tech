@@ -1,0 +1,206 @@
+{% extends 'User/Header.html' %}
+{% load static mathfilters %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Bookings</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #e6ecef; /* Light gray background */
+            color: #34495e; /* Dark slate text */
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px; /* Wider container for table */
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #2c3e50; /* Darker slate for heading */
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* Table Styling */
+        .bookings-table {
+            background-color: #ffffff; /* White panel */
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Soft shadow */
+            overflow: hidden;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .bookings-table thead {
+            background-color: #18201c; /* Teal header */
+            color: #ffffff;
+        }
+
+        .bookings-table th,
+        .bookings-table td {
+            padding: 15px;
+            text-align: left;
+            font-size: 14px;
+            border-bottom: 1px solid #e0e5e8; /* Light gray divider */
+        }
+
+        .bookings-table th {
+            font-weight: 600;
+        }
+
+        .bookings-table tbody tr {
+            transition: background-color 0.3s ease;
+        }
+
+        .bookings-table tbody tr:hover {
+            background-color: #f5f7f9; /* Light hover effect */
+        }
+
+        .bookings-table img {
+            max-width: 100px;
+            border-radius: 5px;
+            vertical-align: middle;
+        }
+
+        .action-links a {
+            color: #1abc9c; /* Teal links */
+            text-decoration: none;
+            margin: 0 5px;
+            transition: color 0.3s ease;
+        }
+
+        .action-links a:hover {
+            color: #16a085; /* Darker teal on hover */
+            text-decoration: underline;
+        }
+
+        .status {
+            font-weight: 600;
+        }
+
+        .status.order-placed {
+            color: #3498db; /* Blue for Order Placed */
+        }
+
+        .status.delivered {
+            color: #2ecc71; /* Green for Delivered */
+        }
+
+        .status.payment-completed {
+            color: #27ae60; /* Darker green for Payment Completed */
+        }
+
+        .status.returned {
+            color: #f1c40f; /* Yellow for Returned */
+        }
+
+        .status.cancelled {
+            color: #e74c3c; /* Red for Cancelled */
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .bookings-table {
+                display: block;
+                overflow-x: auto; /* Horizontal scroll for small screens */
+            }
+
+            .bookings-table th,
+            .bookings-table td {
+                font-size: 12px;
+                padding: 10px;
+            }
+
+            .bookings-table img {
+                max-width: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>User Bookings</h1>
+        <div class="bookings-table-wrapper">
+            <table class="bookings-table">
+                <thead>
+                    <tr>
+                        <th>Booking #</th>
+                        <th>Booking Date</th>
+                        <th>User Name</th>
+                        <th>User Contact</th>
+                        <th>Product Image</th>
+                        <th>Product Name</th>
+                        <th>Description</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total Amount</th>
+                        <th>Dates</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in bookings_with_details %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ item.cart.booking.booking_date }}</td> 
+                        <td>{{ item.cart.booking.user.user_name }}</td>
+                        <td>{{ item.cart.booking.user.user_email }} / {{ item.cart.booking.user.user_contact }}</td>
+                        <td><img src="{{ item.cart.product.product_photo.url }}" alt="{{ item.cart.product.product_name }}"></td>
+                        <td>{{ item.cart.product.product_name }}</td>
+                        <td>{{ item.cart.product.product_description }}</td>
+                        <td>Price:{{ item.cart.product.product_price }}</td>
+                        <td>{{ item.cart.cart_qty }}</td>
+                        <td>Total:{{ item.amount }}</td>
+                        <td>{{ item.cart.booking.booking_fordate }} - {{ item.cart.booking.booking_todate }}</td>
+                        <td class="status {% if item.cart.cart_status == 1 %}order-placed{% elif item.cart.cart_status == 2 %}delivered{% elif item.cart.cart_status == 3 %}payment-completed{% elif item.cart.cart_status == 4 %}returned{% elif item.cart.cart_status == 5 %}cancelled{% endif %}">
+                            {% if item.cart.cart_status == 1 %}
+                            Order Placed
+                            {% elif item.cart.cart_status == 2 %}
+                            Delivered
+                            {% elif item.cart.cart_status == 3 %}
+                            Payment Completed
+                            {% elif item.cart.cart_status == 4 %}
+                            Product Returned
+                            {% elif item.cart.cart_status == 5 %}
+                            Cancelled
+                            {% endif %}
+                        </td>
+                        <td class="action-links">
+                            {% if item.cart.cart_status == 1 %}
+                            <a href="{% url 'User:updatests' item.cart.id 2 %}">Delivered</a> |
+                            {% elif item.cart.cart_status == 3 %}
+                            <a href="{% url 'User:updatests' item.cart.id 4 %}">Returned</a> |
+                            {% endif %}
+                            <a href="{% url 'User:chatpageu' item.cart.booking.user.id %}">Chat</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="12" style="text-align: center; padding: 20px;">No bookings available at the moment.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
+{% endblock content %}

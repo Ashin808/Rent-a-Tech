@@ -1,0 +1,95 @@
+{% extends 'User/Header.html' %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Repair</title>
+    <style>
+        .repair-form {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 100%;
+            max-width: 450px;
+            margin: 20px auto; /* Center the form */
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            resize: vertical;
+            min-height: 80px;
+        }
+        .submit-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+        .submit-btn:hover {
+            background-color: #218838;
+        }
+        .messages {
+            margin-bottom: 15px;
+        }
+        .messages .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        @media (max-width: 768px) {
+            .repair-form {
+                padding: 15px;
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="repair-form">
+        <!-- {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <p class="{{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %} -->
+        <form method="POST" action="">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="txt_devicedetails">Device Details</label>
+                <textarea name="txt_devicedetails" id="txt_devicedetails" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="txt_problemdetails">Problem Details</label>
+                <textarea name="txt_problemdetails" id="txt_problemdetails" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="txt_address">Pickup Address</label>
+                <textarea name="txt_address" id="txt_address" required></textarea>
+            </div>
+            <button type="submit" class="submit-btn">Submit</button>
+        </form>
+    </div>
+</body>
+</html>
+{% endblock content %}

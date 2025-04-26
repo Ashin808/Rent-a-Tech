@@ -1,0 +1,94 @@
+
+{% extends 'Admin/Header.html' %}
+{% load static %}
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <!-- Form Section -->
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Add/Edit District</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="txt_district" class="form-label">District Name</label>
+                                <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    id="txt_district" 
+                                    name="txt_district" 
+                                    value="{{edit.district_name}}" 
+                                    pattern="^[A-Z][a-zA-Z\s]*$" 
+                                    title="District name must start with a capital letter and contain only alphabets and spaces"
+                                    required
+                                    placeholder="Enter district name"
+                                >
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" name="btn_submit" class="btn btn-primary">Submit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Section -->
+        <div class="row mt-5">
+            <div class="col-md-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">District List</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col">Sl.no</th>
+                                        <th scope="col">District</th>
+                                        <th scope="col">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for i in District %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ i.district_name }}</td>
+                                        <td>
+                                            <a href="{% url 'Admin:EditDistrict' i.id %}" class="btn btn-sm btn-warning">Edit</a>
+                                            <a href="{% url 'Admin:DeleteDistrict' i.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete {{ i.district_name }}?')">Delete</a>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="3" class="text-center">No districts found.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+
+{% endblock content %}

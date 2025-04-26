@@ -1,0 +1,91 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Product Bookings</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table th, table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        table th {
+            background-color: #f8f8f8;
+        }
+        .no-bookings {
+            text-align: center;
+            color: #888;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>User Product Bookings</h1>
+        {% if bookings %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Booking ID</th>
+                    <th>Product Name</th>
+                    <th>Booking Date</th>
+                    <th>Status</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr>
+                    <td>{{ booking.id }}</td>
+                    <td>{{ booking.tbl_cart.product.product_name }}</td>
+                    <td>{{ booking.booking_date }}</td>
+                    <td>
+                        {% if booking.booking_status == 0 %}
+                            Pending
+                        {% elif booking.booking_status == 1 %}
+                            Confirmed
+                        {% elif booking.booking_status == 5 %}
+                            Cancelled
+                        {% else %}
+                            Unknown
+                        {% endif %}
+                    </td>
+                    <td>${{ booking.booking_amount }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="no-bookings">
+            No bookings found.
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
+</html></div>

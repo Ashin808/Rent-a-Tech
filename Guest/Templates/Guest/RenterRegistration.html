@@ -1,0 +1,199 @@
+{% extends 'Guest/Header.html' %}
+{% load static %}
+{% block content %}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-header text-center bg-dark text-white py-3">
+                    <h4 class="mb-0">Renter Registration</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" action="" enctype="multipart/form-data" id="renterForm" novalidate>
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="txt_name" name="txt_name" placeholder="Name"
+                                required>
+                            <div class="invalid-feedback">Please enter your name.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <input type="email" class="form-control" id="txt_email" name="txt_email" placeholder="Email"
+                                required>
+                            <div class="invalid-feedback">Please enter a valid email.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="txt_contact" name="txt_contact"
+                                placeholder="Contact Number (10 digits)" required pattern="\d{10}">
+                            <div class="invalid-feedback">Enter a 10-digit number.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <textarea class="form-control" id="txt_address" name="txt_address" rows="2"
+                                placeholder="Address" required></textarea>
+                            <div class="invalid-feedback">Please enter your address.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <input type="password" class="form-control" id="txt_password" name="txt_password"
+                                placeholder="Password (minimum 6 characters)" required minlength="6">
+                            <div class="invalid-feedback">Password must be at least 6 characters.</div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-2 mb-md-0">
+                                <select class="form-select" id="sel_district" name="sel_district" required>
+                                    <option value="">Select District</option>
+                                    {% for i in districtData %}
+                                    <option value="{{ i.id }}">{{ i.district_name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <div class="invalid-feedback">Please select a district.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <select class="form-select" id="sel_place" name="sel_place" required>
+                                    <option value="">Select Place</option>
+                                </select>
+                                <div class="invalid-feedback">Please select a place.</div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">Photo</label>
+                            <input type="file" class="form-control form-control-sm" id="txt_photo" name="txt_photo"
+                                accept="image/*" required>
+                            <div class="invalid-feedback">Please upload an image.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">Proof</label>
+                            <input type="file" class="form-control form-control-sm" id="txt_proof" name="txt_proof"
+                                accept=".pdf,.jpg,.jpeg,.png" required>
+                            <div class="invalid-feedback">Please upload PDF/JPG/PNG.</div>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-dark flex-grow-1" name="btn_submit">SUBMIT</button>
+                                <button type="reset" class="btn btn-outline-dark flex-grow-1"
+                                    name="btn_cancel">CANCEL</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control,
+    .form-select {
+        border-radius: 4px;
+        padding: 10px 15px;
+        font-size: 15px;
+        border: 1px solid #ddd;
+        transition: border-color 0.2s;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #333;
+        box-shadow: 0 0 0 0.25rem rgba(33, 33, 33, 0.15);
+    }
+
+    .form-control-sm {
+        padding: 6px 12px;
+    }
+
+    .btn {
+        padding: 10px 16px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+
+    .btn-dark {
+        background-color: #212121;
+        border-color: #212121;
+        color: #fff;
+    }
+
+    .btn-dark:hover {
+        background-color: #000;
+        border-color: #000;
+        color: #fff;
+    }
+
+    .btn-outline-dark {
+        color: #212121;
+        border-color: #212121;
+        background-color: transparent;
+    }
+
+    .btn-outline-dark:hover {
+        background-color: #e0e0e0;
+        color: #000;
+        border-color: #212121;
+    }
+
+
+    .card {
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .card-header {
+        border-bottom: none;
+    }
+
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 6px;
+    }
+
+    .invalid-feedback {
+        font-size: 0.8rem;
+    }
+</style>
+
+<!-- jQuery for AJAX -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("renterForm");
+
+        // Form validation on submit
+        form.addEventListener("submit", function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add("was-validated");
+        });
+
+        // AJAX for district-place
+        $("#sel_district").change(function () {
+            const did = $(this).val();
+            const ur = "{% url 'Guest:ajaxplace' %}";
+            $.ajax({
+                url: ur,
+                data: { did: did },
+                success: function (data) {
+                    $("#sel_place").html(data);
+                },
+                error: function () {
+                    $("#sel_place").html('<option value="">Error loading places</option>');
+                }
+            });
+        });
+    });
+</script>
+
+{% endblock content %}

@@ -1,0 +1,164 @@
+{% extends 'Admin/Header.html' %}
+{% load static %}
+{% block content %}
+{% load mathfilters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking #{{ booking.id }} - Details</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section h3 {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+        .section p {
+            margin: 5px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f8f8;
+            color: #333;
+        }
+        img {
+            max-width: 100px;
+            border-radius: 5px;
+        }
+        .status.order-placed { color: #3498db; }
+        .status.delivered { color: #2ecc71; }
+        .status.payment-completed { color: #27ae60; }
+        .status.cancelled { color: #e74c3c; }
+        .status.returned { color: #f1c40f; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Booking #{{ booking.id }} - Details</h1>
+
+        <!-- Customer Details -->
+        <div class="section">
+            <h3>Customer Details</h3>
+            <p><strong>Name:</strong> {{ booking.user.user_name }}</p>
+            <p><strong>Email:</strong> {{ booking.user.user_email|default:"Not provided" }}</p>
+            <p><strong>Contact:</strong> {{ booking.user.user_contact|default:"Not provided" }}</p>
+            <!-- Add more fields as available in your tbl_user model -->
+            {% if booking.user.user_address %}
+                <p><strong>Address:</strong> {{ booking.user.user_address }}</p>
+            {% endif %}
+            {% if booking.user.user_city %}
+                <p><strong>City:</strong> {{ booking.user.user_city }}</p>
+            {% endif %}
+            {% if booking.user.user_state %}
+                <p><strong>State:</strong> {{ booking.user.user_state }}</p>
+            {% endif %}
+            {% if booking.user.user_zipcode %}
+                <p><strong>Zipcode:</strong> {{ booking.user.user_zipcode }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Booking Summary -->
+        <div class="section">
+            <h3>Booking Summary</h3>
+            <p><strong>Booking Date:</strong> {{ booking.booking_date|date:"d M Y" }}</p>
+            <p><strong>Rental Period:</strong> {{ booking.booking_fordate|date:"d M Y" }} - {{ booking.booking_todate|date:"d M Y" }}</p>
+            <p><strong>Duration:</strong> {{ days }} days</p>
+            <p><strong>Total Amount:</strong> ${{ grand_total }}</p>
+        </div>
+
+        <!-- Renter Details (from first cart item) -->
+        <div class="section">
+            <h3>Renter Details</h3>
+            {% for cart in cart_items %}
+                {% if forloop.first %}
+                    <p><strong>Name:</strong> {{ cart.product.renter.renter_name }}</p>
+                    <p><strong>Contact:</strong> {{ cart.product.renter.renter_contact }}</p>
+                    <p><strong>Email:</strong> {{ cart.product.renter.renter_email }}</p>
+                {% endif %}
+            {% empty %}
+                <p>No renter information available.</p>
+            {% endfor %}
+        </div>
+
+        <!-- Cart Items Table -->
+        <div class="section">
+            <h3>Cart Items</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product Image</th>
+                        <th>Product Name</th>
+                        <th>Description</th>
+                        <th>Price/Day</th>
+                        <th>Quantity</th>
+                        <th>Subtotal</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cart in cart_items %}
+                    <tr>
+                        <td><img src="{{ cart.product.product_photo.url|default:'/static/Admin/img/default.jpg' }}" alt="{{ cart.product.product_name }}"></td>
+                        <td>{{ cart.product.product_name }}</td>
+                        <td>{{ cart.product.product_description }}</td>
+                        <td>{{ cart.product.product_price }}</td>
+                        <td>{{ cart.cart_qty }}</td>
+                        <td>{{ cart.product.product_price|mul:cart.cart_qty|mul:days }}</td>
+                        <td class="status {% if cart.cart_status == 1 %}order-placed{% elif cart.cart_status == 2 %}delivered{% elif cart.cart_status == 3 %}payment-completed{% elif cart.cart_status == 4 %}returned{% elif cart.cart_status == 5 %}cancelled{% endif %}">
+                            {% if cart.cart_status == 1 %}Order Placed
+                            {% elif cart.cart_status == 2 %}Delivered
+                            {% elif cart.cart_status == 3 %}Payment Completed
+                            {% elif cart.cart_status == 4 %}Returned
+                            {% elif cart.cart_status == 5 %}Cancelled
+                            {% else %}Unknown{% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7">No items found for this booking.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Grand Total -->
+        <div class="section text-right">
+            <p><strong>Grand Total:</strong> {{ grand_total }}</p>
+        </div>
+    </div>
+</body>
+</html>
+{% endblock content %}

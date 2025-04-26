@@ -1,0 +1,148 @@
+{% extends 'Guest/Header.html' %}
+{% load static %}
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-header text-center bg-dark text-white py-3">
+                    <h4 class="mb-0">Shop Registration</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" action="" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <input type="text" class="form-control" name="txt_name" id="txt_name" placeholder="Name" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <input type="email" class="form-control" name="txt_email" id="txt_email" placeholder="Email" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <input type="text" class="form-control" name="txt_contact" id="txt_contact" placeholder="Contact Number" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <textarea class="form-control" name="txt_address" id="txt_address" rows="2" placeholder="Address" required></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <input type="password" class="form-control" name="txt_password" id="txt_password" placeholder="Password" required>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-2 mb-md-0">
+                                <select class="form-select" name="sel_district" id="sel_district" required>
+                                    <option value="">Select District</option>
+                                    {% for i in districtData %}
+                                    <option value="{{i.id}}">{{i.district_name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <select class="form-select" name="sel_place" id="sel_place" required>
+                                    <option value="">Select Place</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">Photo</label>
+                            <input type="file" class="form-control form-control-sm" name="txt_photo" id="txt_photo" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">Proof</label>
+                            <input type="file" class="form-control form-control-sm" name="txt_proof" id="txt_proof" required>
+                        </div>
+                        
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" name="btn_submit" class="btn btn-dark">SUBMIT</button>
+                            <button type="submit" name="btn_cancel" class="btn btn-outline-dark">CANCEL</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control, .form-select {
+        border-radius: 4px;
+        padding: 10px 15px;
+        font-size: 15px;
+        border: 1px solid #ddd;
+        transition: border-color 0.2s;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #333;
+        box-shadow: 0 0 0 0.25rem rgba(33, 33, 33, 0.15);
+    }
+    
+    .form-control-sm {
+        padding: 6px 12px;
+    }
+    
+    .btn {
+        padding: 10px 16px;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-radius: 4px;
+        transition: all 0.2s;
+    }
+    
+    .btn-dark {
+        background-color: #212121;
+        border-color: #212121;
+    }
+    
+    .btn-dark:hover {
+        background-color: #000;
+        border-color: #000;
+    }
+    
+    .btn-outline-dark {
+        color: #212121;
+        border-color: #212121;
+    }
+    
+    .btn-outline-dark:hover {
+        background-color: #f5f5f5;
+        color: #000;
+    }
+    
+    .card {
+        border-radius: 6px;
+        overflow: hidden;
+    }
+    
+    .card-header {
+        border-bottom: none;
+    }
+    
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 6px;
+    }
+</style>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    $("#sel_district").change(function () {
+        var did = $(this).val();
+        var ur = "{% url 'Guest:ajaxplace' %}"
+        $.ajax({
+            url: ur,
+            data: { did: did, },
+            success: function (data) {
+                $("#sel_place").html(data);
+            },
+        });
+    });
+</script>
+{% endblock content %}

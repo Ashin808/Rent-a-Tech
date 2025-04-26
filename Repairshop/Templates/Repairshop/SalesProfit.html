@@ -1,0 +1,178 @@
+{% extends 'Repairshop/Header.html' %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales and Profit</title>
+    <style>
+        
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .summary {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .summary-box {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+            flex: 1;
+            margin: 10px;
+            min-width: 200px;
+        }
+        .summary-box h3 {
+            margin: 0 0 10px;
+            color: #555;
+        }
+        .summary-box p {
+            font-size: 24px;
+            margin: 0;
+            font-weight: bold;
+        }
+        .sales { color: #2ecc71; }
+        .pending-cod { color: #e67e22; }
+        .profit { color: #3498db; }
+        .count { color: #f1c40f; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .filter-form {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .filter-form input[type="date"] {
+            padding: 5px;
+            margin: 0 10px;
+        }
+        .filter-form button {
+            padding: 5px 15px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .filter-form button:hover {
+            background-color: #2980b9;
+        }
+        .filter-form a {
+            margin-left: 10px;
+            text-decoration: none;
+            color: #e74c3c;
+        }
+        .filter-form a:hover {
+            text-decoration: underline;
+        }
+        .no-results {
+            text-align: center;
+            color: #e74c3c;
+            margin-top: 20px;
+        }
+        @media (max-width: 768px) {
+            .summary {
+                flex-direction: column;
+            }
+            .summary-box {
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sales and Profit Overview</h1>
+        
+        <!-- {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <p class="{{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %} -->
+
+        <form method="get" class="filter-form">
+            <label for="start_date">Start Date:</label>
+            <input type="date" id="start_date" name="start_date" value="{{ request.GET.start_date|default_if_none:'' }}">
+            <label for="end_date">End Date:</label>
+            <input type="date" id="end_date" name="end_date" value="{{ request.GET.end_date|default_if_none:'' }}">
+            <button type="submit">Filter</button>
+            {% if request.GET.start_date or request.GET.end_date %}
+            <a href="{% url 'Repairshop:SalesProfit' %}">Clear Filter</a>
+            {% endif %}
+        </form>
+
+        <div class="summary">
+            <div class="summary-box">
+                <h3>Total Sales</h3>
+                <p class="sales">₹{{ total_sales|floatformat:2 }}</p>
+            </div>
+            <div class="summary-box">
+                <h3>Pending COD Payments</h3>
+                <p class="pending-cod">₹{{ pending_cod_payments|floatformat:2 }}</p>
+            </div>
+            <div class="summary-box">
+                <h3>Total Profit</h3>
+                <p class="profit">₹{{ total_profit|floatformat:2 }}</p>
+            </div>
+            <div class="summary-box">
+                <h3>Completed Repairs</h3>
+                <p class="count">{{ repair_count }}</p>
+            </div>
+        </div>
+
+        {% if repairs %}
+        <table>
+            <tr>
+                <th>Repair ID</th>
+                <th>User</th>
+                <th>Device Details</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Request Date</th>
+            </tr>
+            {% for repair in repairs %}
+            <tr>
+                <td>{{ repair.id }}</td>
+                <td>{{ repair.user.user_name }}</td>
+                <td>{{ repair.device_details }}</td>
+                <td>₹{{ repair.repair_amount|floatformat:2 }}</td>
+                <td>
+                    {% if repair.repair_status == 6 %}
+                        Card Payment Completed
+                    {% elif repair.repair_status == 7 %}
+                        Delivered (COD, Awaiting Payment)
+                    {% elif repair.repair_status == 8 %}
+                        Returned
+                    {% elif repair.repair_status == 9 %}
+                        COD Payment Completed
+                    {% endif %}
+                </td>
+                <td>{{ repair.request_date|date:"Y-m-d" }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p class="no-results">No repairs found for the selected date range.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
+{% endblock content %}

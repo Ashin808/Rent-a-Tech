@@ -1,0 +1,156 @@
+{% extends 'Guest/Header.html' %}
+{% load static %}
+{% block content %}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-4 col-md-6 col-sm-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-4">
+                    <h2 class="card-title text-center mb-4">Login</h2>
+                    <form method="post" action="" id="loginForm" novalidate>
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="txt_email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="txt_email" name="txt_email" placeholder="Enter your email" required>
+                            <div class="invalid-feedback">Please enter a valid email address.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="txt_password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="txt_password" name="txt_password" placeholder="Enter your password" required minlength="6">
+                            <div class="invalid-feedback">Password must be at least 6 characters long.</div>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-dark btn-block" name="btn_submit">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alert for Messages -->
+{% if msg %}
+<script>
+    alert("{{ msg }}");
+</script>
+{% endif %}
+
+<!-- Custom Styles -->
+<style>
+    .card {
+        border-radius: 10px;
+        background: #fff;
+    }
+
+    .card-title {
+        color: #2c3e50;
+        font-weight: 600;
+        font-size: 24px;
+    }
+
+    .form-label {
+        color: #34495e;
+        font-weight: 500;
+    }
+
+    .form-control {
+        border-radius: 5px;
+        border: 1px solid #ced4da;
+        padding: 10px;
+        transition: border-color 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #333;
+        box-shadow: 0 0 0 0.25rem rgba(33, 33, 33, 0.15);
+    }
+
+    .btn-dark {
+        background-color: #212121;
+        border: none;
+        padding: 10px;
+        font-weight: bold;
+        border-radius: 5px;
+        color: #fff;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-dark:hover {
+        background-color: #000;
+        color: #fff;
+    }
+
+    .invalid-feedback {
+        font-size: 14px;
+    }
+
+    @media (max-width: 576px) {
+        .card {
+            margin: 0 10px;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+    }
+</style>
+
+<!-- Client-Side Validation -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("loginForm");
+
+        form.addEventListener("submit", function (event) {
+            const email = document.getElementById("txt_email");
+            const password = document.getElementById("txt_password");
+            let isValid = true;
+
+            // Reset validation states
+            email.classList.remove("is-invalid");
+            password.classList.remove("is-invalid");
+
+            // Email validation
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!email.value || !emailPattern.test(email.value)) {
+                email.classList.add("is-invalid");
+                isValid = false;
+            }
+
+            // Password validation
+            if (!password.value || password.value.length < 6) {
+                password.classList.add("is-invalid");
+                isValid = false;
+            }
+
+            if (!isValid) {
+                event.preventDefault(); // Prevent form submission
+            }
+        });
+
+        // Real-time feedback
+        ['input', 'change'].forEach(event => {
+            document.getElementById("txt_email").addEventListener(event, function () {
+                const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (this.value && emailPattern.test(this.value)) {
+                    this.classList.remove("is-invalid");
+                    this.classList.add("is-valid");
+                } else {
+                    this.classList.remove("is-valid");
+                }
+            });
+
+            document.getElementById("txt_password").addEventListener(event, function () {
+                if (this.value && this.value.length >= 6) {
+                    this.classList.remove("is-invalid");
+                    this.classList.add("is-valid");
+                } else {
+                    this.classList.remove("is-valid");
+                }
+            });
+        });
+    });
+</script>
+
+{% endblock content %}

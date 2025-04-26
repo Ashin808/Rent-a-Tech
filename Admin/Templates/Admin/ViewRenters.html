@@ -1,0 +1,82 @@
+
+{% extends 'Admin/Header.html' %}
+{% load static %}
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User-Approval</title>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">Renter List</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <form action="" method="POST">
+                                {% csrf_token %}
+                                <table class="table table-bordered table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th scope="col">Si.No</th>
+                                            <th scope="col">Name</th>
+                                            <th scope="col">Contact</th>
+                                            <th scope="col">Email</th>
+                                            <th scope="col">Address</th>
+                                            <th scope="col">Photo</th>
+                                            <th scope="col">Proof</th>
+                                            <th scope="col">District</th>
+                                            <th scope="col">Place</th>
+                                            <th scope="col">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for i in Renter %}
+                                        <tr>
+                                            <td>{{ forloop.counter }}</td>
+                                            <td>{{ i.renter_name }}</td>
+                                            <td>{{ i.renter_contact }}</td>
+                                            <td>{{ i.renter_email }}</td>
+                                            <td style="max-width: 200px; word-wrap: break-word;">{{ i.renter_address }}</td>
+                                            <td>
+                                                <a href="{{ i.renter_photo.url }}" target="_blank">
+                                                    <img src="{{ i.renter_photo.url }}" class="img-thumbnail" width="150" height="150" alt="User Photo">
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a href="{{ i.renter_proof.url }}" target="_blank">
+                                                    <img src="{{ i.renter_proof.url }}" class="img-thumbnail" width="150" height="150" alt="User Proof">
+                                                </a>
+                                            </td>
+                                            <td>{{ i.place.district.district_name }}</td>
+                                            <td>{{ i.place.place_name }}</td>
+                                            <td>
+                                                <!-- No action provided in original code, placeholder for future actions -->
+                                                <span class="text-muted">No actions available</span>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="10" class="text-center">No renters found.</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+{% endblock content %}

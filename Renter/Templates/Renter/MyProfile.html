@@ -1,0 +1,162 @@
+{% extends 'Renter/Header.html' %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Renter Profile</title>
+    <style>
+       
+
+        .profile-card {
+            background-color: #ffffff;
+            max-width: 450px;
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .profile-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .profile-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #fff;
+            margin-bottom: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .profile-image:hover {
+            transform: scale(1.05);
+        }
+
+        .profile-details {
+            padding: 20px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 12px 0;
+            font-size: 14px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            color: #555;
+            flex: 1;
+        }
+
+        .detail-value {
+            color: #333;
+            flex: 2;
+            word-break: break-word;
+        }
+
+        .profile-actions {
+            padding: 15px 20px;
+            background-color: #fafafa;
+            text-align: center;
+            border-top: 1px solid #eee;
+        }
+
+        .action-link {
+            text-decoration: none;
+            color: #3498db;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 0 15px;
+            transition: color 0.2s ease;
+        }
+
+        .action-link:hover {
+            color: #2980b9;
+        }
+
+        .action-divider {
+            color: #ccc;
+        }
+
+        @media (max-width: 768px) {
+            .profile-card {
+                margin: 0 10px;
+            }
+
+            .detail-row {
+                flex-direction: column;
+                margin: 10px 0;
+            }
+
+            .detail-label, .detail-value {
+                flex: none;
+            }
+
+            .action-link {
+                display: block;
+                margin: 5px 0;
+            }
+
+            .action-divider {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-card">
+        <div class="profile-header">
+            <img src="{{ renter.renter_photo.url }}" alt="Renter Profile Picture" class="profile-image">
+        </div>
+        <div class="profile-details">
+            <div class="detail-row">
+                <span class="detail-label">Name</span>
+                <span class="detail-value">{{ renter.renter_name }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Email</span>
+                <span class="detail-value">{{ renter.renter_email }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Contact</span>
+                <span class="detail-value">{{ renter.renter_contact }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Address</span>
+                <span class="detail-value">{{ renter.renter_address }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">District</span>
+                <span class="detail-value">{{ renter.place.district.district_name }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Place</span>
+                <span class="detail-value">{{ renter.place.place_name }}</span>
+            </div>
+        </div>
+        <div class="profile-actions">
+            <a href="{% url 'Renter:EditProfile' %}" class="action-link">Edit Profile</a>
+            <span class="action-divider">|</span>
+            <a href="{% url 'Renter:ChangePassword' %}" class="action-link">Change Password</a>
+        </div>
+    </div>
+</body>
+</html>
+{% endblock content %}

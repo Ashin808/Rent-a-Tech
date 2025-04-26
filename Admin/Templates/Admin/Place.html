@@ -1,0 +1,113 @@
+
+{% extends 'Admin/Header.html' %}
+{% load static %}
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="container mt-5">
+        <!-- Form Section -->
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Add/Edit Place</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" action="">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="sel_district" class="form-label">District</label>
+                                <select 
+                                    class="form-select" 
+                                    id="sel_district" 
+                                    name="sel_district" 
+                                    required
+                                >
+                                    <option value="">----Select----</option>
+                                    {% for i in districtData %}
+                                    <option 
+                                        {% if edit.district_id == i.id %}
+                                        selected
+                                        {% endif %}
+                                        value="{{i.id}}"
+                                    >{{i.district_name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="txt_place" class="form-label">Place</label>
+                                <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    id="txt_place" 
+                                    name="txt_place" 
+                                    value="{{edit.place_name}}" 
+                                    pattern="^[A-Z][a-zA-Z\s]*$" 
+                                    title="Place name must start with a capital letter and contain only alphabets and spaces"
+                                    required
+                                    placeholder="Enter place name"
+                                >
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" name="btn_submit" class="btn btn-primary">Submit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Table Section -->
+        <div class="row mt-5">
+            <div class="col-md-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">Place List</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col">Sl.no</th>
+                                        <th scope="col">District</th>
+                                        <th scope="col">Place</th>
+                                        <th scope="col">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for i in seldata %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ i.district.district_name }}</td>
+                                        <td>{{ i.place_name }}</td>
+                                        <td>
+                                            <a href="{% url 'Admin:EditPlace' i.id %}" class="btn btn-sm btn-warning">Edit</a>
+                                            <a href="{% url 'Admin:DeletePlace' i.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete {{ i.place_name }}?')">Delete</a>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="text-center">No places found.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
+{% endblock content %}

@@ -1,0 +1,28 @@
+{% extends 'Repairshop/Header.html' %}
+{% load static mathfilters %}
+{% block content %}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Repair Request</title>
+    <style>
+        form { width: 50%; margin: 20px auto; }
+        label { display: block; margin: 10px 0 5px; }
+        input, textarea { width: 100%; padding: 5px; border-radius: 4px; }
+        button { background-color: #2ecc71; color: white; border: none; padding: 10px; cursor: pointer; }
+        button:hover { background-color: #27ae60; }
+    </style>
+</head>
+<body>
+    <form method="post" action="{% url 'Repairshop:edit_request' repair.id %}">
+        {% csrf_token %}
+        <label for="txt_date">Scheduled Pickup Date:</label>
+        <input type="date" name="txt_date" id="txt_date" value="{{ repair.date_scheduled|date:'Y-m-d' }}">
+        <label for="txt_notes">Reply Notes:</label>
+        <textarea name="txt_notes" id="txt_notes">{{ repair.repair_notes|default:'' }}</textarea>
+        <button type="submit">Save Changes</button>
+    </form>
+</body>
+</html>
+{% endblock content %}

@@ -1,0 +1,129 @@
+{% extends 'User/Header.html' %}
+{% load static %}
+{% block content %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.product_name|default:"Product Details" }} - Product Details</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        /* .container { max-width: 1200px; margin: 0 auto; padding: 20px; } */
+        .product-detail { display: flex; gap: 20px; background: #fff; padding: 20px; border-radius: 10px; }
+        .main-image img { width: 100%; border-radius: 10px; }
+        .thumbnail-images { display: flex; gap: 10px; margin-top: 10px; }
+        .thumbnail { width: 80px; height: 80px; cursor: pointer; border: 1px solid #ddd; border-radius: 5px; }
+        .product-info { flex: 1; }
+        .product-title { font-size: 24px; margin-bottom: 10px; }
+        .rating { color: #f1c40f; margin-bottom: 10px; }
+        .price { font-size: 22px; color: #e74c3c; font-weight: bold; }
+        .description { margin-top: 15px; }
+        .reviews { margin-top: 30px; background: #fff; padding: 20px; border-radius: 10px; }
+        .review-item { border-bottom: 1px solid #ddd; padding: 10px 0; }
+        .review-header { display: flex; justify-content: space-between; margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="product-detail">
+            <div class="product-images">
+                <div class="main-image">
+                    <img src="{{ product.product_photo.url|default:'/static/images/placeholder.jpg' }}" 
+                         alt="{{ product.product_name|default:'Product' }}" 
+                         class="main-product-image">
+                </div>
+                {% if additional_photos %}
+                <div class="thumbnail-images">
+                    {% for photo in additional_photos %}
+                    <img src="{{ photo.photo.url|default:'/static/images/placeholder.jpg' }}" 
+                         alt="Thumbnail" 
+                         class="thumbnail" 
+                         onclick="changeMainImage(this)">
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="product-info">
+                <h2 class="product-title">{{ product.product_name|default:"Unnamed Product" }}</h2>
+                <div class="rating">
+                    {% with avg_rating=avg_rating|default:0 %}
+                        {% for i in "12345" %}
+                            {% if forloop.counter0 < avg_rating %}
+                                <i class="fa fa-star"></i>
+                            {% else %}
+                                <i class="fa fa-star-o"></i>
+                            {% endif %}
+                        {% endfor %}
+                    {% endwith %}
+                    <span>({{ review_count|default:0 }} reviews)</span>
+                </div>
+                <div class="price">Price:{{ product.product_price|default:"0.00" }}</div>
+                <div class="description">
+                    <h4>Description</h4>
+                    <p>{{ product.product_description|default:"No description available." }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="reviews">
+            <h4>Reviews ({{ review_count|default:0 }})</h4>
+            {% if reviews %}
+                {% for review in reviews %}
+                <div class="review-item">
+                    <div class="review-header">
+                        <strong>
+                            {% if review.user.user_name %}
+                                {{ review.user.user_name }}
+                            {% else %}
+                                Anonymous
+                            {% endif %}
+                        </strong>
+                        <span>
+                            {% if review.datetime %}
+                                {{ review.datetime|date:"M d, Y" }}
+                            {% else %}
+                                Date not available
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="rating">
+                        {% with rating=review.rating_data|default:0 %}
+                            {% for i in "12345" %}
+                                {% if forloop.counter0 < rating %}
+                                    <i class="fa fa-star"></i>
+                                {% else %}
+                                    <i class="fa fa-star-o"></i>
+                                {% endif %}
+                            {% endfor %}
+                        {% endwith %}
+                    </div>
+                    <p>
+                        {% if review.user_review %}
+                            {{ review.user_review }}
+                        {% else %}
+                            No comment provided
+                        {% endif %}
+                    </p>
+                </div>
+                {% empty %}
+                <p>No reviews yet. Be the first to review this product!</p>
+                {% endfor %}
+            {% else %}
+                <p>No reviews available for this product.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function changeMainImage(thumbnail) {
+            const mainImage = document.querySelector('.main-product-image');
+            if (thumbnail && thumbnail.src) {
+                mainImage.src = thumbnail.src;
+            }
+        }
+    </script>
+</body>
+</html>
+{% endblock content %}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <table border="2" align="center">
+        <tr>
+            <th>Sl.no</th>
+            <th>Product Name</th>
+            <th>Description</th>
+            <th>Category</th>
+            <th>Sub Category</th>
+            <th>RentPrice</th>
+            <th>Image</th>
+            <th>Action</th>
+        </tr>
+        {% for i in ViewProducts %}
+        <tr>
+            <td>{{forloop.counter}}</td>
+            <td>{{i.product_name}}</td>
+            <td>{{i.product_description}}</td>
+            <td>{{i.subcategory.category.category_name}}</td>
+            <td>{{i.subcategory.subcategory_name}}</td>
+            <td>{{i.product_price}}</td>
+            <td>
+                <!-- Clicking this image will open the gallery page -->
+                <a href="{% url 'User:ProductGallery' i.id %}">
+                    <img src="{{ i.product_photo.url }}" class="main-image" alt="Product Image" width="100">
+                </a>
+            </td>
+            <td>
+                <a href="{% url 'User:Addcart' i.id %}">Add To Cart</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

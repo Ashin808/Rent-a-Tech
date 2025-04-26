@@ -1,0 +1,68 @@
+
+{% extends 'Admin/Header.html' %}
+{% load static %}
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View-Feedbacks</title>
+</head>
+
+<body>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0">Feedback List</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col">Sl.no</th>
+                                        <th scope="col">User Name</th>
+                                        <th scope="col">User Photo</th>
+                                        <th scope="col">Feedback</th>
+                                        <th scope="col">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for i in Feedback %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ i.user.user_name }}</td>
+                                        <td>
+                                            <a href="{{ i.user.user_photo.url }}" target="_blank">
+                                                <img src="{{ i.user.user_photo.url }}" class="img-thumbnail" width="100" height="100" alt="User Photo">
+                                            </a>
+                                        </td>
+                                        <td style="max-width: 200px; word-wrap: break-word;">{{ i.feedback_title }}</td>
+                                        <td>
+                                            <!-- No action provided in original code, placeholder for future actions -->
+                                            <span class="text-muted">No actions available</span>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center">No feedback found.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+
+{% endblock content %}

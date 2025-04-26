@@ -1,0 +1,220 @@
+{% extends 'User/Header.html' %}
+{% load static mathfilters %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice - Booking #{{ booking.id }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .invoice-box {
+            max-width: 900px;
+            margin: auto;
+            padding: 30px;
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        .header h2 {
+            margin: 0;
+            color: #333;
+            text-align: center;
+        }
+        .header p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+        }
+        .billing-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .billing-info div {
+            width: 45%;
+        }
+        .billing-info h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            color: #333;
+        }
+        .billing-info p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #555;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table th, table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+            font-size: 14px;
+        }
+        table th {
+            background-color: #f8f8f8;
+            color: #333;
+        }
+        .total-section {
+            text-align: right;
+            margin-top: 20px;
+        }
+        .total-section p {
+            margin: 5px 0;
+            font-size: 16px;
+            color: #333;
+        }
+        .total-section .grand-total {
+            font-size: 18px;
+            font-weight: bold;
+            color: #000;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 12px;
+            color: #777;
+        }
+        .footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .status {
+            font-weight: 600;
+        }
+        .status.order-placed { color: #3498db; }
+        .status.delivered { color: #2ecc71; }
+        .status.payment-completed { color: #27ae60; }
+        .status.returned { color: #f1c40f; }
+        .status.cancelled { color: #e74c3c; }
+    </style>
+</head>
+<body>
+    <div class="invoice-box">
+        <!-- Header with Renter Details -->
+        <div class="header">
+            {% for cart in cart_items %}
+                {% if forloop.first and cart.product.renter %}
+                    <h2>Invoice from {{ cart.product.renter.renter_name }}</h2>
+                    <p>Contact: {{ cart.product.renter.renter_contact }}</p>
+                    <p>Email: {{ cart.product.renter.renter_email }}</p>
+                {% else %}
+                    <h2>Invoice</h2>
+                    <p>No renter information available</p>
+                {% endif %}
+            {% empty %}
+                <h2>Invoice</h2>
+                <p>No renter information available</p>
+            {% endfor %}
+        </div>
+
+        <!-- Billing Information -->
+        <div class="billing-info">
+            <div>
+                <h3>Bill To:</h3>
+                <p><strong>Name:</strong> {{ booking.user.user_name }}</p>
+                <p><strong>Email:</strong> {{ booking.user.user_email }}</p>
+            </div>
+            <div>
+                <h3>Invoice Details:</h3>
+                <p><strong>Invoice #:</strong> {{ booking.id }}</p>
+                <p><strong>Date:</strong> {{ booking.booking_date }}</p>
+                <p><strong>Status:</strong> 
+                    {% with cart=cart_items.0 %}
+                    <span class="status {% if cart.cart_status == 1 %}order-placed{% elif cart.cart_status == 2 %}delivered{% elif cart.cart_status == 3 %}payment-completed{% elif cart.cart_status == 4 %}returned{% elif cart.cart_status == 5 %}cancelled{% endif %}">
+                        {% if cart.cart_status == 1 %}
+                            Order Placed
+                        {% elif cart.cart_status == 2 %}
+                            Delivered
+                        {% elif cart.cart_status == 3 %}
+                            Payment Completed
+                        {% elif cart.cart_status == 4 %}
+                            Product Returned
+                        {% elif cart.cart_status == 5 %}
+                            Cancelled
+                        {% endif %}
+                    </span>
+                    {% endwith %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Itemized Table -->
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Product Name</th>
+                    <th>Description</th>
+                    <th>Price/Day</th>
+                    <th>Qty</th>
+                    <th>Days</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cart in cart_items %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ cart.product.product_name }}</td>
+                    <td>{{ cart.product.product_description }}</td>
+                    <td>{{ cart.product.product_price }}</td>
+                    <td>{{ cart.cart_qty }}</td>
+                    <td>{{ days }}</td>
+                    <td>{{ cart.product.product_price|mul:cart.cart_qty|mul:days }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7">No items found for this booking.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Total Section -->
+        <div class="total-section">
+            <p>Subtotal: {{ total_amount }}</p>
+            <p class="grand-total">Grand Total: {{ total_amount }}</p>
+        </div>
+
+        <!-- Booking Dates -->
+        <div style="margin-top: 20px;">
+            <p><strong>Booking Period:</strong> {{ booking.booking_fordate }} to {{ booking.booking_todate }}</p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            {% for cart in cart_items %}
+                {% if forloop.first and cart.product.renter %}
+                    <p>Thank you for renting from {{ cart.product.renter.renter_name }}!</p>
+                    <p>For queries, contact: <a href="mailto:{{ cart.product.renter.renter_email }}">{{ cart.product.renter.renter_email }}</a></p>
+                    {% if cart.product.renter.id %}
+                        <p><a href="{% url 'User:chatpage' cart.product.renter.id %}">Chat with Renter</a></p>
+                    {% else %}
+                        <p>No chat option available (Renter ID missing)</p>
+                    {% endif %}
+                {% endif %}
+            {% empty %}
+                <p>Thank you for your booking!</p>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>
+{% endblock content %}

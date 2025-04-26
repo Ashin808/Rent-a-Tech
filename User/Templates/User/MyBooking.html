@@ -1,0 +1,168 @@
+{% extends 'User/Header.html' %}
+{% load static mathfilters %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            background-color: #e6ecef;
+            color: #34495e;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 24px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .bookings-table {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .bookings-table thead {
+            background-color: #18201c;
+            color: #ffffff;
+        }
+        .bookings-table th,
+        .bookings-table td {
+            padding: 15px;
+            text-align: left;
+            font-size: 14px;
+            border-bottom: 1px solid #e0e5e8;
+        }
+        .bookings-table th {
+            font-weight: 600;
+        }
+        .bookings-table tbody tr {
+            transition: background-color 0.3s ease;
+        }
+        .bookings-table tbody tr:hover {
+            background-color: #f5f7f9;
+        }
+        .bookings-table img {
+            max-width: 100px;
+            border-radius: 5px;
+            vertical-align: middle;
+        }
+        .action-links a {
+            color: #1abc9c;
+            text-decoration: none;
+            margin: 0 5px;
+            transition: color 0.3s ease;
+        }
+        .action-links a:hover {
+            color: #16a085;
+            text-decoration: underline;
+        }
+        .status {
+            font-weight: 600;
+        }
+        .status.order-placed { color: #3498db; }
+        .status.delivered { color: #2ecc71; }
+        .status.payment-completed { color: #27ae60; }
+        .status.cancelled { color: #e74c3c; }
+        .status.returned { color: #f1c40f; }
+        @media (max-width: 768px) {
+            .container { padding: 15px; }
+            .bookings-table { display: block; overflow-x: auto; }
+            .bookings-table th, .bookings-table td { font-size: 12px; padding: 10px; }
+            .bookings-table img { max-width: 60px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>My Bookings</h1>
+        <div class="bookings-table-wrapper">
+            <table class="bookings-table">
+                <thead>
+                    <tr>
+                        <th>Booking #</th>
+                        <th>Renter Name</th>
+                        <th>Renter Contact</th>
+                        <th>Product Image</th>
+                        <th>Product Name</th>
+                        <th>Description</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Amount</th>
+                        <th>Dates</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i in cart %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ i.product.renter.renter_name }}{{ i.product.user.user_name }}</td>
+                        <td>{{ i.product.renter.renter_email }} / {{ i.product.renter.renter_contact }}{{ i.product.user.user_email }} / {{ i.product.user.user_contact }}</td>
+                        <td><img src="{{ i.product.product_photo.url }}" alt="{{ i.product.product_name }}"></td>
+                        <td>{{ i.product.product_name }}</td>
+                        <td>{{ i.product.product_description }}</td>
+                        <td>{{ i.product.product_price }}</td>
+                        <td>{{ i.cart_qty }}</td>
+                        <td>{{ i.booking.booking_amount }}</td>
+                        <td>{{ i.booking.booking_fordate }} - {{ i.booking.booking_todate }}</td>
+                        <td class="status {% if i.cart_status == 1 %}order-placed{% elif i.cart_status == 2 %}delivered{% elif i.cart_status == 3 %}payment-completed{% elif i.cart_status == 5 %}cancelled{% elif i.cart_status == 4 %}returned{% endif %}">
+                            {% if i.cart_status == 1 %}
+                            Order Placed
+                            {% elif i.cart_status == 2 %}
+                            Delivered
+                            {% elif i.cart_status == 3 %}
+                            Payment Completed
+                            {% elif i.cart_status == 5 %}
+                            Order Cancelled
+                            {% elif i.cart_status == 4 %}
+                            Product Returned
+                            {% endif %}
+                        </td>
+                        <td class="action-links">
+                        {% if i.product.renter %}
+                            <a href="{% url 'User:chatpage' i.product.renter.id %}">Chat</a>
+                        {% elif i.product.user %}
+                        <a href="{% url 'User:chatpageu' i.product.user.id %}">Chat</a>
+                        {% endif %}
+                            {% if i.cart_status == 1 %}
+                            | <a href="{% url 'User:ordercancel' i.id %}">Cancel</a>
+                            {% elif i.cart_status == 2 %}
+                            | <a href="{% url 'User:payment' i.id %}">Pay</a>
+                            {% elif i.cart_status == 4 %}
+                            | <a href="{% url 'User:rating' i.product.id %}">Rate</a>
+                            | <a href="{% url 'User:Complaint' i.product.id %}">Complaint</a>
+
+                            | <a href="{% url 'User:Invoice' i.id %}">Invoice</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="12" style="text-align: center; padding: 20px;">No bookings available at the moment.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
+{% endblock content %}

@@ -1,0 +1,192 @@
+{% extends 'User/Header.html' %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Repair Shops</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            padding: 10px;
+        }
+
+        .shops-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 10px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .shop-card {
+            background-color: white;
+            border-radius: 6px;
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.1);
+            padding: 12px;
+            transition: transform 0.2s;
+        }
+
+        .shop-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .shop-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .shop-number {
+            background-color: #007bff;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .shop-info {
+            margin: 8px 0;
+            font-size: 13px;
+        }
+
+        .shop-info h3 {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .shop-images {
+            display: flex;
+            gap: 8px;
+            margin: 6px 0;
+        }
+
+        .shop-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 3px;
+            transition: transform 0.2s;
+        }
+
+        .shop-image:hover {
+            transform: scale(1.05);
+        }
+
+        .shop-details {
+            margin: 8px 0;
+        }
+
+        .details-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 3px 0;
+            font-size: 12px;
+        }
+
+        .shop-actions {
+            margin-top: 8px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            text-decoration: none;
+            border-radius: 3px;
+            font-size: 12px;
+            transition: background-color 0.2s;
+            background-color: #28a745;
+            color: white;
+        }
+
+        .action-btn:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .shops-container {
+                grid-template-columns: 1fr;
+            }
+
+            .shop-card {
+                padding: 10px;
+            }
+
+            .shop-images {
+                flex-direction: column;
+            }
+
+            .shop-image {
+                width: 100%;
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="shops-container">
+        {% for i in Viewrepairshop %}
+        <div class="shop-card">
+            <div class="shop-header">
+                <span class="shop-number">Shop #{{ forloop.counter }}</span>
+            </div>
+
+            <div class="shop-info">
+                <h3>{{ i.repairshop_name }}</h3>
+                <p>{{ i.repairshop_email }} / {{ i.repairshop_contact }}</p>
+            </div>
+
+            <div class="shop-images">
+                <a href="{{ i.repairshop_photo.url }}" target="_blank">
+                    <img src="{{ i.repairshop_photo.url }}" alt="Shop Photo" class="shop-image">
+                </a>
+                <a href="{{ i.repairshop_proof.url }}" target="_blank">
+                    <img src="{{ i.repairshop_proof.url }}" alt="Shop Proof" class="shop-image">
+                </a>
+            </div>
+
+            <div class="shop-details">
+                <div class="details-row">
+                    <span>Address:</span>
+                    <span style="max-width: 150px; word-wrap: break-word;">{{ i.repairshop_address }}</span>
+                </div>
+                <div class="details-row">
+                    <span>District:</span>
+                    <span>{{ i.place.district.district_name }}</span>
+                </div>
+                <div class="details-row">
+                    <span>Place:</span>
+                    <span>{{ i.place.place_name }}</span>
+                </div>
+            </div>
+
+            <div class="shop-actions">
+                <a href="{% url 'User:RequestRepair' i.id %}" class="action-btn">Book Repair</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if msg %}
+    <script>
+        alert("{{msg}}");
+        window.location = "{% url 'User:ViewProducts' %}";
+    </script>
+    {% endif %}
+</body>
+</html>
+{% endblock content %}

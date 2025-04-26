@@ -1,0 +1,52 @@
+{% extends 'Renter/Header.html' %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Delete</title>
+    <style>
+        .confirm-container {
+            max-width: 400px;
+            margin: 50px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .confirm-btn {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .cancel-btn {
+            background-color: #6c757d;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="confirm-container">
+        <h2>Confirm Deletion</h2>
+        <p>Are you sure you want to delete "{{ product.product_name }}"?</p>
+        <form method="post" action="{% url 'Renter:DeleteAddProduct' product.id %}">
+            {% csrf_token %}
+            <button type="submit" class="confirm-btn">Yes, Delete</button>
+            <a href="{% url 'Renter:AddProduct' %}" class="cancel-btn">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>
+{% endblock content %}

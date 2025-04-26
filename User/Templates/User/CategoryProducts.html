@@ -1,0 +1,165 @@
+{% extends 'User/Header.html' %}
+{% load static %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ category.category_name }} - Rent-a-Tech</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 28px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .products-table {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .products-table th,
+        .products-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .products-table th {
+            background-color: #333 ;
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 14px;
+        }
+
+        .products-table tr {
+            transition: background-color 0.2s ease;
+        }
+
+        .products-table tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .products-table img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 4px;
+            transition: transform 0.2s ease;
+        }
+
+        .products-table img:hover {
+            transform: scale(1.05);
+        }
+
+        .products-table td {
+            font-size: 14px;
+            color: #555;
+            vertical-align: middle;
+        }
+
+        .price {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .no-products {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+            transition: color 0.2s ease;
+        }
+
+        .back-link:hover {
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+            .products-table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .products-table th,
+            .products-table td {
+                min-width: 150px;
+            }
+
+            .products-table img {
+                width: 80px;
+                height: 80px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>{{ category.category_name }}</h1>
+    <table class="products-table">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Subcategory</th>
+                <th>Description</th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td><img src="{{ product.product_photo.url }}" alt="{{ product.product_name }}"></td>
+                <td>{{ product.product_name }}</td>
+                <td>{{ product.subcategory.subcategory_name }}</td>
+                <td>{{ product.product_description|truncatewords:15 }}</td>
+                <td class="price">{{ product.product_price }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="no-products">No products available in this category.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'User:Homepage' %}" class="back-link">Back to Home</a>
+</body>
+</html>
+{% endblock content %}
